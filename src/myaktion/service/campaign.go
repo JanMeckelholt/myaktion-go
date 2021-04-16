@@ -1,9 +1,9 @@
 package service
 
 import (
-	log "github.com/sirupsen/logrus"
-
+	"errors"
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/model"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -31,4 +31,21 @@ func GetCampaigns() ([]model.Campaign, error) {
 	}
 	log.Infoln("Retrieved: %v", campaigns)
 	return campaigns, nil
+}
+
+func GetCampaignById(id uint) (*model.Campaign, error) {
+	//var campaign model.Campaign
+	if campaign, ok := campaignStore[id]; ok {
+		return campaign, nil
+	}
+
+	return nil, errors.New("Campaign for id not found: " + string(id))
+}
+
+func UpdateCampaignById(id uint, campaign model.Campaign) (*model.Campaign, error) {
+	if _, ok := campaignStore[id]; ok {
+		campaignStore[id] = &campaign
+		return &campaign, nil
+	}
+	return nil, errors.New("Campaign for id not found: " + string(id))
 }

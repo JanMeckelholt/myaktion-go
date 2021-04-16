@@ -15,7 +15,7 @@ type result struct {
 
 func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	var campaign *model.Campaign
-	campaign, err := getCampaign(r)
+	campaign, err := requestToCampaign(r)
 
 	if err != nil {
 		log.Errorf("Can't serialize request body to campaign struct: %v", err)
@@ -27,30 +27,61 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	/*w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(*campaign); err != nil {
-		log.Errorf("Failure encoding value to JSON: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}*/
 	sendJson(w, campaign)
 }
 
 func GetCampaigns(w http.ResponseWriter, _ *http.Request) {
 	campaigns, err := service.GetCampaigns()
 	if err != nil {
-		log.Errorf("Error calling serivce GetCampaings: %v", err)
+		log.Errorf("Error calling serivce GetCampaigns: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	/*	w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(campaigns); err != nil {
-			log.Errorf("Failure encodig value to JSON: %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}*/
 	sendJson(w, campaigns)
 }
 
-func getCampaign(r *http.Request) (*model.Campaign, error) {
+func GetCampaign(w http.ResponseWriter, r *http.Request) {
+	id, err := getId(r)
+	if err != nil {
+		log.Errorf("Error getting Id: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	campaign, err := service.GetCampaignById(id)
+	if err != nil {
+		log.Errorf("Error calling serivce GetCampaignById: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	sendJson(w, *campaign)
+
+}
+
+func UpdateCampaign(w http.ResponseWriter, r *http.Request) {
+	var newCampaign *model.Campaign
+	newCampaign, err := requestToCampaign(r)
+
+	if err != nil {
+		log.Errorf("Can't serialize request body to campaign struct: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	id, err := getId(r)
+	if err != nil {
+		log.Errorf("Error getting Id: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	newCampaign, err = service.UpdateCampaignById(id, *newCampaign)
+	if err != nil {
+		log.Errorf("Error calling serivce GetCampaignById: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	sendJson(w, *newCampaign)
+}
+
+func requestToCampaign(r *http.Request) (*model.Campaign, error) {
 	var campaign model.Campaign
 	err := json.NewDecoder(r.Body).Decode(&campaign)
 	if err != nil {

@@ -16,6 +16,7 @@ func init() {
 	if err != nil {
 		log.Info("Log level not specified, set default to: INFO")
 		log.SetLevel(log.InfoLevel)
+		return
 	}
 	log.SetLevel(level)
 }
@@ -27,6 +28,8 @@ func main() {
 	router.HandleFunc("/health", handler.Health).Methods("GET")
 	router.HandleFunc("/campaign", handler.CreateCampaign).Methods("POST")
 	router.HandleFunc("/campaigns", handler.GetCampaigns).Methods("GET")
+	router.HandleFunc("/campaigns/{id}", handler.GetCampaign).Methods("GET")
+	router.HandleFunc("/campaigns/{id}", handler.UpdateCampaign).Methods("PUT")
 	if err := http.ListenAndServe(":8002", router); err != nil {
 		log.Fatal(err)
 	}
