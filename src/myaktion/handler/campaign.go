@@ -60,7 +60,6 @@ func GetCampaign(w http.ResponseWriter, r *http.Request) {
 func UpdateCampaign(w http.ResponseWriter, r *http.Request) {
 	var newCampaign *model.Campaign
 	newCampaign, err := requestToCampaign(r)
-
 	if err != nil {
 		log.Errorf("Can't serialize request body to campaign struct: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -72,9 +71,9 @@ func UpdateCampaign(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	newCampaign, err = service.UpdateCampaignById(id, *newCampaign)
+	newCampaign, err = service.UpdateCampaignById(id, newCampaign)
 	if err != nil {
-		log.Errorf("Error calling serivce GetCampaignById: %v", err)
+		log.Errorf("Error calling serivce UpdateCampaignById: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -88,23 +87,55 @@ func DeleteCampaign(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	deletedCampaing, err := service.DeleteCampaignById(id)
+	deletedCampaign, err := service.DeleteCampaignById(id)
 	if err != nil {
 		log.Errorf("Error calling serivce DeleteCampaignById: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	sendJson(w, *deletedCampaing)
+	sendJson(w, *deletedCampaign)
+}
+
+func AddDonation(w http.ResponseWriter, r *http.Request) {
+	id, err := getId(r)
+	if err != nil {
+		log.Errorf("Error getting Id: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	donation, err := requestToDonation(r)
+	if err != nil {
+		log.Errorf("Can't serialize request body to donation struct: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	updatedCampaign, err := service.AddDonation(id, donation)
+	if err != nil {
+		log.Errorf("Error calling serivce AddDonation: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	sendJson(w, *updatedCampaign)
 }
 
 func requestToCampaign(r *http.Request) (*model.Campaign, error) {
 	var campaign model.Campaign
 	err := json.NewDecoder(r.Body).Decode(&campaign)
 	if err != nil {
-		log.Errorf("Can't serialize request body to campaign sturct: %v", err)
+		log.Errorf("Can't serialize request body to campaign struct: %v", err)
 		return nil, err
 	}
 	return &campaign, nil
+}
+
+func requestToDonation(r *http.Request) (*model.Donation, error) {
+	var donation model.Donation
+	err := json.NewDecoder(r.Body).Decode(&donation)
+	if err != nil {
+		log.Errorf("Can't serialize request body to donation struct: %v", err)
+		return nil, err
+	}
+	return &donation, nil
 }
 
 func sendJson(w http.ResponseWriter, value interface{}) {

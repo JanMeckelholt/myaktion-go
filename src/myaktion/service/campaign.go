@@ -42,10 +42,18 @@ func GetCampaignById(id uint) (*model.Campaign, error) {
 	return nil, errors.New("Campaign for id not found: " + string(id))
 }
 
-func UpdateCampaignById(id uint, campaign model.Campaign) (*model.Campaign, error) {
-	if _, ok := campaignStore[id]; ok {
-		campaignStore[id] = &campaign
-		return &campaign, nil
+func UpdateCampaignById(id uint, campaign *model.Campaign) (*model.Campaign, error) {
+	if existingCampaign, ok := campaignStore[id]; ok {
+		//campaignStore[id] = campaign
+		existingCampaign.Name = campaign.Name
+		existingCampaign.OrganizerName = campaign.OrganizerName
+		existingCampaign.TargetAmount = campaign.TargetAmount
+		existingCampaign.DonationMinimum = campaign.DonationMinimum
+		existingCampaign.Account = campaign.Account
+		entry := log.WithField("ID", id)
+		entry.Info("Successfully updated campaign.")
+		entry.Tracef("Updated: %v", existingCampaign)
+		return existingCampaign, nil
 	}
 	return nil, errors.New("Campaign for id not found: " + string(id))
 }
@@ -54,6 +62,17 @@ func DeleteCampaignById(id uint) (*model.Campaign, error) {
 	if campaign, ok := campaignStore[id]; ok {
 		delete(campaignStore, id)
 		return campaign, nil
+	}
+	return nil, errors.New("Campaign for id not found: " + string(id))
+}
+
+func AddDonation(id uint, donation *model.Donation) (*model.Campaign, error) {
+	if existingCampaign, ok := campaignStore[id]; ok {
+		existingCampaign.Donations = append(existingCampaign.Donations, *donation)
+		entry := log.WithField("ID", id)
+		entry.Info("Successfully updated campaign.")
+		entry.Tracef("Updated: %v", existingCampaign)
+		return existingCampaign, nil
 	}
 	return nil, errors.New("Campaign for id not found: " + string(id))
 }
