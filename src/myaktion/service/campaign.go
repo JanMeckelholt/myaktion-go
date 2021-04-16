@@ -49,3 +49,11 @@ func UpdateCampaignById(id uint, campaign model.Campaign) (*model.Campaign, erro
 	}
 	return nil, errors.New("Campaign for id not found: " + string(id))
 }
+
+func DeleteCampaignById(id uint) (*model.Campaign, error) {
+	if campaign, ok := campaignStore[id]; ok {
+		delete(campaignStore, id)
+		return campaign, nil
+	}
+	return nil, errors.New("Campaign for id not found: " + string(id))
+}

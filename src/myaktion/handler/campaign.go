@@ -81,6 +81,22 @@ func UpdateCampaign(w http.ResponseWriter, r *http.Request) {
 	sendJson(w, *newCampaign)
 }
 
+func DeleteCampaign(w http.ResponseWriter, r *http.Request) {
+	id, err := getId(r)
+	if err != nil {
+		log.Errorf("Error getting Id: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	deletedCampaing, err := service.DeleteCampaignById(id)
+	if err != nil {
+		log.Errorf("Error calling serivce DeleteCampaignById: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	sendJson(w, *deletedCampaing)
+}
+
 func requestToCampaign(r *http.Request) (*model.Campaign, error) {
 	var campaign model.Campaign
 	err := json.NewDecoder(r.Body).Decode(&campaign)

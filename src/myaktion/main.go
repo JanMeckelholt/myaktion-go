@@ -30,6 +30,7 @@ func main() {
 	router.HandleFunc("/campaigns", handler.GetCampaigns).Methods("GET")
 	router.HandleFunc("/campaigns/{id}", handler.GetCampaign).Methods("GET")
 	router.HandleFunc("/campaigns/{id}", handler.UpdateCampaign).Methods("PUT")
+	router.HandleFunc("/campaigns/{id}", handler.DeleteCampaign).Methods("DELETE")
 	if err := http.ListenAndServe(":8002", router); err != nil {
 		log.Fatal(err)
 	}
