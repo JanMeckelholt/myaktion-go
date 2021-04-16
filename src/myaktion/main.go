@@ -1,15 +1,28 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/handler"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"net/http"
+	"os"
 )
 
+func init() {
+	// init logger
+	log.SetFormatter(&log.TextFormatter{})
+	log.SetReportCaller(true)
+	level, err := log.ParseLevel(os.Getenv("LOG_LEVEL"))
+	if err != nil {
+		log.Info("Log level not specified, set default to: INFO")
+		log.SetLevel(log.InfoLevel)
+	}
+	log.SetLevel(level)
+}
+
 func main() {
-	log.Println("Starting My-Aktion API server")
+
+	log.Infoln("Starting My-Aktion API server")
 	router := mux.NewRouter()
 	router.HandleFunc("/health", handler.Health).Methods("GET")
 	router.HandleFunc("/campaign", handler.CreateCampaign).Methods("POST")
