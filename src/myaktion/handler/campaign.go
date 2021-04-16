@@ -28,3 +28,17 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func GetCampaigns(w http.ResponseWriter, _ *http.Request) {
+	campaigns, err := service.GetCampaigns()
+	if err != nil {
+		log.Printf("Error calling serivce GetCampaings: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(campaigns); err != nil {
+		log.Printf("Failure encodig value to JSON: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
