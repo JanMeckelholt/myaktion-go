@@ -82,10 +82,13 @@ func UpdateCampaignById(id uint, campaign *model.Campaign) (*model.Campaign, err
 }
 
 func DeleteCampaignById(id uint) (*model.Campaign, error) {
-	campaign := new(model.Campaign)
-	result := db.DB.Delete(campaign, id)
+	toDeleteCampaign, err := GetCampaignById(id)
+	if err != nil || toDeleteCampaign == nil {
+		return nil, err
+	}
+	result := db.DB.Delete(toDeleteCampaign)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return campaign, nil
+	return toDeleteCampaign, nil
 }
