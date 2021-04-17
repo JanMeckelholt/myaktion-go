@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -15,4 +16,12 @@ func getId(r *http.Request) (uint, error) {
 		return 0, err
 	}
 	return uint(id), nil
+}
+
+func sendJson(w http.ResponseWriter, value interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(value); err != nil {
+		log.Errorf("Failure encoding value to JSON: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
