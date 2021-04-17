@@ -1,9 +1,11 @@
 package service
 
 import (
+	"errors"
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/db"
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/model"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 var (
@@ -48,25 +50,27 @@ func GetCampaignById(id uint) (*model.Campaign, error) {
 	log.Infof("id: %v", id)
 	result := db.DB.Preload("Donations").First(campaign, id)
 	//result := db.DB.Take(campaign)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if result.Error != nil {
-		log.Infoln(result)
 		return nil, result.Error
 	}
+	log.Tracef("Retrieved: %v", campaign)
 	return campaign, nil
 }
 
 func UpdateCampaignById(id uint, campaign *model.Campaign) (*model.Campaign, error) {
-	existingCampaign := new(model.Campaign)
-	result := db.DB.First(existingCampaign, id)
-	if result.Error != nil {
-		return nil, result.Error
+	existingCampaign, err := GetCampaignById(id)
+	if err != nil || existingCampaign == nil {
+		return nil, err
 	}
 	existingCampaign.Name = campaign.Name
 	existingCampaign.OrganizerName = campaign.OrganizerName
 	existingCampaign.TargetAmount = campaign.TargetAmount
 	existingCampaign.DonationMinimum = campaign.DonationMinimum
 	existingCampaign.Account = campaign.Account
-	result = db.DB.Save(existingCampaign)
+	result := db.DB.Save(existingCampaign)
 	if result.Error != nil {
 		return nil, result.Error
 	}
