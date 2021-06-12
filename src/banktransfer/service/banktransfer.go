@@ -40,7 +40,9 @@ func (s *BankTransferService) ProcessTransactions(stream banktransfer.BankTransf
 					return fmt.Errorf("error sending transaction: %w", err)
 				}
 				response, err := stream.Recv()
-				entry.WithError(err).Error("Error receiving processing response")
+				if err != nil {
+					entry.WithError(err).Error("Error receiving processing response")
+				}
 				if response.Id != id {
 					return errors.New("received processing response of a different transaction")
 				}
