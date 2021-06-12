@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/JanMeckelholt/myaktion-go/src/banktransfer/grpc/banktransfer"
+	"github.com/JanMeckelholt/myaktion-go/src/banktransfer/kafka"
 	"github.com/JanMeckelholt/myaktion-go/src/banktransfer/service"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -14,6 +15,7 @@ const (
 )
 
 func init() {
+	defer kafka.EnsureTransactionTopic()
 	// init logger
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)

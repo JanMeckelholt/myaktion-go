@@ -13,7 +13,7 @@ message Account {
   string number = 3;
 }
 message Transaction {
-  int32 id = 1;
+  string id = 1;
   int32 donation_id = 2;
   float amount = 3;
   string reference = 4;
@@ -21,5 +21,5 @@ message Transaction {
   Account to_account = 6;
 }
 message ProcessingResponse {
-  int32 id = 1;
+  string id = 1;
 }

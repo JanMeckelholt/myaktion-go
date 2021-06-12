@@ -66,27 +66,6 @@ func (s *BankTransferService) ProcessTransactions(stream banktransfer.BankTransf
 				} else {
 					entry.Info("Processing response received")
 				}
-				//case _ = <-ticker.C:
-				//	transaction := &banktransfer.Transaction{Id: s.counter, Amount: 20}
-				//	entry := log.WithField("transaction", transaction)
-				//	entry.Info("Sending transaction")
-				//	if err := stream.Send(transaction); err != nil {
-				//		entry.WithError(err).Error("Error sending transaction")
-				//		return err
-				//	}
-				//	entry.Info("Transaction sent. Waiting for processing response")
-				//	response, err := stream.Recv()
-				//	if err != nil {
-				//		entry.WithError(err).Error("Error receiving processing response")
-				//		return err
-				//	}
-				//	if response.Id != s.counter {
-				//		// NOTE: this is just a guard and not happening as transaction is local per connection
-				//		entry.Error("Received processing response of a different transaction")
-				//	} else {
-				//		entry.Info("Processing response received")
-				//		s.counter++
-				//	}
 
 			}
 		}
@@ -107,7 +86,7 @@ func (s *BankTransferService) processTransaction(transaction *banktransfer.Trans
 func (s *BankTransferService) requeuTransaction(transaction *banktransfer.Transaction) {
 	entry := log.WithField("transaction", transaction)
 	go func(transaction banktransfer.Transaction) {
-		entry.Infof("Requeuing transaction. Wait for %d seconds", retryTime.Seconds())
+		entry.Infof("Requeuing transaction. Wait for %v seconds", retryTime.Seconds())
 		time.Sleep(retryTime)
 		s.retryQueue <- transaction
 		entry.Info("Transaction requeued")
