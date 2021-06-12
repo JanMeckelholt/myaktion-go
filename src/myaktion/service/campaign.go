@@ -8,15 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	campaignStore map[uint]*model.Campaign
-	actCampaignId uint = 1
-)
-
-func init() {
-	campaignStore = make(map[uint]*model.Campaign)
-}
-
 func CreateCampaign(campaign *model.Campaign) error {
 	/*campaign.ID = actCampaignId
 	campaignStore[actCampaignId] = campaign

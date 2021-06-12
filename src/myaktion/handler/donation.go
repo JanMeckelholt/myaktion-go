@@ -27,7 +27,7 @@ func AddDonation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	//sendJson(w, *updatedCampaign)
+	sendJson(w, donation)
 }
 
 func requestToDonation(r *http.Request) (*model.Donation, error) {
