@@ -22,8 +22,8 @@ func connectandmonitor() {
 		log.WithError(err).Fatal("error connecting to the banktransfer service")
 	}
 	defer conn.Close()
-	// TODO: here we force a deadline after 10 seconds to test the re-connecting logic
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	banktransferClient := banktransfer.NewBankTransferClient(conn)
 	watcher, err := banktransferClient.ProcessTransactions(ctx)
