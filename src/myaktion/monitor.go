@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const reconnectTimeout = 120 * time.Second
+
 func monitortransactions() {
 	for {
 		connectandmonitor()
@@ -23,7 +25,7 @@ func connectandmonitor() {
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), reconnectTimeout)
 	defer cancel()
 	banktransferClient := banktransfer.NewBankTransferClient(conn)
 	watcher, err := banktransferClient.ProcessTransactions(ctx)

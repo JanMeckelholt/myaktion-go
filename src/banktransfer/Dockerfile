@@ -6,5 +6,8 @@ RUN go get google.golang.org/protobuf/cmd/protoc-gen-go google.golang.org/grpc/c
 RUN go mod download
 RUN go generate ./...
 RUN go install
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+RUN chmod +x ./wait-for-it.sh ./docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["banktransfer"]
 EXPOSE 9111
