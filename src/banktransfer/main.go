@@ -32,7 +32,10 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	banktransfer.RegisterBankTransferServer(s, service.NewBankTransferService())
+	transferSerice := service.NewBankTransferService()
+	transferSerice.Start()
+	defer transferSerice.Stop()
+	banktransfer.RegisterBankTransferServer(s, transferSerice)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

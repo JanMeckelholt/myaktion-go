@@ -67,3 +67,23 @@ func deleteDonation(donation *model.Donation) error {
 	entry.Info("Successfully deleted campaign.")
 	return nil
 }
+
+func MarkDonation(id uint) error {
+	entry := log.WithField("donationId", id)
+	donation := new(model.Donation)
+	result := db.DB.First(donation, id)
+	if result.Error != nil {
+		entry.WithError(result.Error).Error("Can't retrieve donation")
+		return result.Error
+	}
+	entry = entry.WithField("donation", donation)
+	entry.Trace("Retrieved donation")
+	donation.Status = model.StatusTransferred
+	result = db.DB.Save(donation)
+	if result.Error != nil {
+		entry.WithError(result.Error).Error("Can't update donation")
+		return result.Error
+	}
+	entry.Info("Successfully updated status of donation.")
+	return nil
+}

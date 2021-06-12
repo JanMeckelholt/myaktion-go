@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/client"
 	"github.com/JanMeckelholt/myaktion-go/src/myaktion/client/banktransfer"
+	"github.com/JanMeckelholt/myaktion-go/src/myaktion/service"
 	log "github.com/sirupsen/logrus"
 	"time"
 )
@@ -22,7 +23,7 @@ func connectandmonitor() {
 	}
 	defer conn.Close()
 	// TODO: here we force a deadline after 10 seconds to test the re-connecting logic
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	banktransferClient := banktransfer.NewBankTransferClient(conn)
 	watcher, err := banktransferClient.ProcessTransactions(ctx)
@@ -41,7 +42,13 @@ func connectandmonitor() {
 			continue
 		}
 		entry := log.WithField("transaction", transaction)
-		entry.Info("Received transaction. Sending processing response")
+		entry.Info("Received transaction")
+		err = service.MarkDonation(uint(transaction.DonationId))
+		if err != nil {
+			entry.WithError(err).Error("error changing donation status")
+			continue
+		}
+		entry.Info("Sending processing response")
 		err = watcher.Send(&banktransfer.ProcessingResponse{Id: transaction.Id})
 		if err != nil {
 			entry.WithError(err).Error("error sending processing response")
